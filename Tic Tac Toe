@@ -1,0 +1,95 @@
+class Board:
+    def __init__(self, size):
+        self.size = size
+        self.grid = [[" " for _ in range(size)] for _ in range(size)]
+
+    def print_board(self):
+        for i in range(self.size):
+            print(" " + " | ".join(self.grid[i]))
+            if i < self.size - 1:
+                print("---+" * (self.size - 1) + "---")
+
+    def make_move(self, value, symbol):
+        row = (value - 1) // self.size
+        col = (value - 1) % self.size
+
+        if row < 0 or row >= self.size or col < 0 or col >= self.size:
+            print("Invalid move! Out of range.")
+            return False
+
+        if self.grid[row][col] == " ":
+            self.grid[row][col] = symbol
+        else:
+            print("Cell already taken!")
+            return False
+
+        self.print_board()
+        return True
+
+    def check_winner(self):
+        n = self.size
+
+       
+        for i in range(n):
+            if self.grid[i][0] != " " and all(self.grid[i][j] == self.grid[i][0] for j in range(n)):
+                return self.grid[i][0]
+            if self.grid[0][i] != " " and all(self.grid[j][i] == self.grid[0][i] for j in range(n)):
+                return self.grid[0][i]
+
+       
+        if self.grid[0][0] != " " and all(self.grid[i][i] == self.grid[0][0] for i in range(n)):
+            return self.grid[0][0]
+
+ 
+        if self.grid[0][n - 1] != " " and all(self.grid[i][n - 1 - i] == self.grid[0][n - 1] for i in range(n)):
+            return self.grid[0][n - 1]
+
+        return None
+
+    def is_full(self):
+        return all(cell != " " for row in self.grid for cell in row)
+
+
+class Player1:
+    def __init__(self, board):
+        self.symbol = "X"
+        self.name = "Player 1"
+        self.board = board
+
+    def play_turn(self):
+        value = int(input(f"{self.name} ({self.symbol}), enter a value (1-{self.board.size * self.board.size}): "))
+        return self.board.make_move(value, self.symbol)
+
+
+class Player2:
+    def __init__(self, board):
+        self.symbol = "O"
+        self.name = "Player 2"
+        self.board = board
+
+    def play_turn(self):
+        value = int(input(f"{self.name} ({self.symbol}), enter a value (1-{self.board.size * self.board.size}): "))
+        return self.board.make_move(value, self.symbol)
+
+
+size = int(input("Enter board size"))
+board = Board(size)
+player1 = Player1(board)
+player2 = Player2(board)
+
+board.print_board()
+
+for turn in range(1, size * size + 1):
+    current_player = player1 if turn % 2 == 1 else player2
+
+    if not current_player.play_turn():
+        continue
+
+    winner = board.check_winner()
+    if winner:
+        print(f"{current_player.name} Wins!")
+        break
+
+    if board.is_full():
+        print("It's a Draw!")
+        break
